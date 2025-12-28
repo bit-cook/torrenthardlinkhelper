@@ -4,14 +4,14 @@
     {
         public FolderModel()
         {
-            this.Set(() => this.Located, ref this._locked, false);
-            this.Set(() => this.Type, ref this._type, "Folder");
+            Located = false;
+            Type = "Folder";
         }
 
         public FolderModel(string folderName)
             : this()
         {
-            this.Set(() => this.Name, ref this._name, folderName);
+            Name = folderName;
         }
     }
 }

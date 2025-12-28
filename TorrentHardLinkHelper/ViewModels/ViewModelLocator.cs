@@ -1,6 +1,3 @@
-using GalaSoft.MvvmLight.Ioc;
-using Microsoft.Practices.ServiceLocation;
-
 namespace TorrentHardLinkHelper.ViewModels
 {
     /// <summary>
@@ -9,37 +6,44 @@ namespace TorrentHardLinkHelper.ViewModels
     /// </summary>
     public class ViewModelLocator
     {
+        private static MainViewModel _main;
+        private static HardLinkToolViewModel _hardLinkTool;
+
         /// <summary>
         ///     Initializes a new instance of the ViewModelLocator class.
         /// </summary>
         public ViewModelLocator()
         {
-            var container = new SimpleIoc();
-            container.Register<MainViewModel>();
-            container.Register<HardLinkToolViewModel>();
-
-            //var builder = new ContainerBuilder();
-            //builder.RegisterType<MainViewModel>();
-
-            //IContainer container = builder.Build();
-            //var locator = new AutofacServiceLocator(container);
-
-            ServiceLocator.SetLocatorProvider(() => container);
         }
 
         public MainViewModel Main
         {
-            get { return ServiceLocator.Current.GetInstance<MainViewModel>(); }
+            get 
+            { 
+                if (_main == null)
+                {
+                    _main = new MainViewModel();
+                }
+                return _main;
+            }
         }
 
         public HardLinkToolViewModel HardLinkTool
         {
-            get { return ServiceLocator.Current.GetInstance<HardLinkToolViewModel>(); }
+            get 
+            { 
+                if (_hardLinkTool == null)
+                {
+                    _hardLinkTool = new HardLinkToolViewModel();
+                }
+                return _hardLinkTool;
+            }
         }
 
         public static void Cleanup()
         {
-            // TODO Clear the ViewModels
+            _main = null;
+            _hardLinkTool = null;
         }
     }
 }

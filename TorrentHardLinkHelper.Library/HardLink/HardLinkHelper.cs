@@ -18,8 +18,7 @@ namespace TorrentHardLinkHelper.HardLink
             this._builder = new StringBuilder();
             this._builder.AppendLine("chcp 65001");
             this._builder.AppendLine("::==============================================::");
-            this._builder.AppendLine(":: Torrent Hard-Link Helper v0.8");
-            this._builder.AppendLine(":: By Harry Wong(harrywong@live.com), 2013-2014");
+            this._builder.AppendLine(":: Torrent Hard-Link Helper - HardLink Script");
             this._builder.AppendLine("::");
             this._builder.AppendLine(":: Created at " + DateTime.Now);
             this._builder.AppendLine("::==============================================::");
@@ -81,8 +80,7 @@ namespace TorrentHardLinkHelper.HardLink
             this._builder = new StringBuilder();
             this._builder.AppendLine("chcp 65001");
             this._builder.AppendLine("::==============================================::");
-            this._builder.AppendLine(":: Torrent Hard-Link Helper v0.8");
-            this._builder.AppendLine(":: By Harry Wong(harrywong@live.com), 2013-2014");
+            this._builder.AppendLine(":: Torrent Hard-Link Helper - HardLink Script");
             this._builder.AppendLine("::");
             this._builder.AppendLine(":: Created at " + DateTime.Now);
             this._builder.AppendLine("::==============================================::");

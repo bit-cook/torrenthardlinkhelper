@@ -7,22 +7,22 @@ namespace TorrentHardLinkHelper.Models
     {
         public FileModel()
         {
-            this.Set(() => this.Located, ref this._locked, false);
-            this.Set(() => this.Type, ref this._type, "File");
+            Located = false;
+            Type = "File";
         }
 
         public FileModel(string fullName)
             : this()
         {
-            this.Set(() => this.Name, ref this._name, Path.GetFileName(fullName));
-            this.Set(() => this.FullName, ref this._fullName, fullName);
+            Name = Path.GetFileName(fullName);
+            FullName = fullName;
         }
 
         public FileModel(TorrentFile torrentFile)
             : this()
         {
-            this.Set(() => this.Name, ref this._name, Path.GetFileName(torrentFile.Path));
-            this.Set(() => this.FullName, ref this._fullName, torrentFile.Path);
+            Name = Path.GetFileName(torrentFile.Path);
+            FullName = torrentFile.Path;
         }
     }
 }

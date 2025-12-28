@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Media;
-using GalaSoft.MvvmLight;
 using TorrentHardLinkHelper.Locate;
 using TorrentHardLinkHelper.Torrents;
 
@@ -159,7 +159,7 @@ namespace TorrentHardLinkHelper.Models
                     {
                         entity.HasCounterpart = true;
                     }
-                    entity.RaisePropertyChanged("TextColor");
+                    entity.OnPropertyChanged(nameof(entity.TextColor));
                 }
                 else
                 {
