@@ -4,7 +4,7 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:models="clr-namespace:TorrentHardLinkHelper.Models"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
-        Title="Torrent HardLink Helper v0.9" Height="700" Width="680">
+        Title="Torrent HardLink Helper v1.0" Height="700" Width="680">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
