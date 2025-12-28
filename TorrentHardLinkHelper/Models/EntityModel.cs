@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Media;
 using GalaSoft.MvvmLight;
 using TorrentHardLinkHelper.Locate;
@@ -17,6 +18,7 @@ namespace TorrentHardLinkHelper.Models
         protected string _name;
         protected string _fullName;
         protected bool _locked;
+        protected bool _hasCounterpart;
         protected string _type;
         protected IList<EntityModel> _entities;
 
@@ -36,6 +38,12 @@ namespace TorrentHardLinkHelper.Models
         {
             get { return this._locked; }
             set { this._locked = value; }
+        }
+
+        public bool HasCounterpart
+        {
+            get { return this._hasCounterpart; }
+            set { this._hasCounterpart = value; }
         }
 
         public string Type
@@ -60,9 +68,13 @@ namespace TorrentHardLinkHelper.Models
                 }
                 if (this.Located)
                 {
-                    return Brushes.Blue;
+                    return Brushes.Green;
                 }
-                return Brushes.Red;
+                if (this.HasCounterpart)
+                {
+                    return Brushes.Red;
+                }
+                return Brushes.Blue;
             }
         }
 
@@ -109,33 +121,49 @@ namespace TorrentHardLinkHelper.Models
                 var folder = FindOrCreateFolder(root, file.TorrentFile.Path);
                 var fileModel = new FileModel(file.TorrentFile);
                 fileModel.Located = file.State == LinkState.Located;
+                fileModel.HasCounterpart = file.FsFileInfos.Count > 0;
                 folder.Entities.Add(fileModel);
             }
             return root;
         }
 
-        public static void Update(EntityModel model, IEnumerable<FileSystemFileInfo> fsFileInfos)
+        public static void Update(EntityModel model, IList<TorrentFileLink> torrentFileLinks)
+        {
+            // Collect all matched file paths
+            var matchedFilePaths = new HashSet<string>(
+                torrentFileLinks
+                    .Where(c => c.State == LinkState.Located && c.LinkedFsFileInfo != null)
+                    .Select(c => c.LinkedFsFileInfo.FilePath));
+
+            // Collect all candidate file paths (files that exist on both sides)
+            var candidateFilePaths = new HashSet<string>(
+                torrentFileLinks
+                    .SelectMany(c => c.FsFileInfos)
+                    .Where(f => f != null)
+                    .Select(f => f.FilePath));
+
+            UpdateRecursive(model, matchedFilePaths, candidateFilePaths);
+        }
+
+        private static void UpdateRecursive(EntityModel model, HashSet<string> matchedFilePaths, HashSet<string> candidateFilePaths)
         {
             foreach (EntityModel entity in model.Entities)
             {
                 if (entity.Type == "File")
                 {
-                    foreach (var fsInfo in fsFileInfos)
+                    if (matchedFilePaths.Contains(entity.FullName))
                     {
-                        if (fsInfo == null)
-                        {
-                            continue;
-                        }
-                        if (fsInfo.FilePath == entity.FullName)
-                        {
-                            entity.Located = true;
-                            entity.RaisePropertyChanged("TextColor");
-                        }
+                        entity.Located = true;
                     }
+                    if (candidateFilePaths.Contains(entity.FullName))
+                    {
+                        entity.HasCounterpart = true;
+                    }
+                    entity.RaisePropertyChanged("TextColor");
                 }
                 else
                 {
-                    Update(entity, fsFileInfos);
+                    UpdateRecursive(entity, matchedFilePaths, candidateFilePaths);
                 }
             }
         }

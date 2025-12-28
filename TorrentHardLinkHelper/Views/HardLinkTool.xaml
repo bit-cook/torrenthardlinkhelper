@@ -16,7 +16,7 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <TextBlock  FontWeight="Bold" Grid.Row="0" Grid.ColumnSpan="3" Margin="10" TextWrapping="Wrap" >This tool help create a copy of a folder, the size of file below 1M will be copyed, others will be hard-linked.</TextBlock>
+        <TextBlock  FontWeight="Bold" Grid.Row="0" Grid.ColumnSpan="3" Margin="10" TextWrapping="Wrap" >This tool helps to create a copy of a folder, the size of file below 1M will be copied, others will be hard-linked.</TextBlock>
         <Label Grid.Row="1" HorizontalContentAlignment="Right" VerticalAlignment="Center">Source Folder</Label>
         <Label Grid.Row="2" HorizontalContentAlignment="Right" VerticalAlignment="Center">Target Parent Folder</Label>
         <Label Grid.Row="3" HorizontalContentAlignment="Right" VerticalAlignment="Center">Target Folder Name</Label>

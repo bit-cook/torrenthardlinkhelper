@@ -46,6 +46,9 @@ namespace TorrentHardLinkHelper.ViewModels
         private RelayCommand _selectOuptputBaseFolderCommand;
         private RelayCommand _analyseCommand;
         private RelayCommand _linkCommand;
+        private RelayCommand _linkLinuxCommand;
+        private RelayCommand _hardlinkLinuxCommand;
+        private RelayCommand _moveLinuxCommand;
         private RelayCommand<TreeView> _expandCommand;
         private RelayCommand<TreeView> _collapseCommand;
         private RelayCommand<SelectionChangedEventArgs> _outputNameTypeChangedCommand;
@@ -109,6 +112,21 @@ namespace TorrentHardLinkHelper.ViewModels
                     !string.IsNullOrEmpty(this._outputBaseFolder) && !string.IsNullOrEmpty(this._outputName) &&
                     this._locateResult != null);
 
+            this._linkLinuxCommand = new RelayCommand(LinkLinux,
+                () =>
+                    !string.IsNullOrEmpty(this._outputBaseFolder) && !string.IsNullOrEmpty(this._outputName) &&
+                    this._locateResult != null);
+
+            this._hardlinkLinuxCommand = new RelayCommand(HardlinkLinux,
+                () =>
+                    !string.IsNullOrEmpty(this._outputBaseFolder) && !string.IsNullOrEmpty(this._outputName) &&
+                    this._locateResult != null);
+
+            this._moveLinuxCommand = new RelayCommand(MoveLinux,
+                () =>
+                    !string.IsNullOrEmpty(this._outputBaseFolder) && !string.IsNullOrEmpty(this._outputName) &&
+                    this._locateResult != null);
+
             this._outputNameTypeChangedCommand =
                 new RelayCommand<SelectionChangedEventArgs>(
                     args => ChangeOutputFolderNmae(args.AddedItems[0].ToString()));
@@ -154,6 +172,24 @@ namespace TorrentHardLinkHelper.ViewModels
             {
                 UpdateStatusFormat("Load torrent failed, exception message: {0}", ex.Message);
             }
+        }
+
+        public void LoadTorrentFile(string filePath)
+        {
+            this.Set(() => TorrentFile, ref this._torrentFile, filePath);
+            this.OpenTorrent();
+        }
+
+        public void LoadSourceFolder(string folderPath)
+        {
+            this.Set(() => this.SourceFolder, ref this._sourceFolder, folderPath);
+            this.Set(() => this.FileSystemEntityModel, ref this._fileSystemEntityModel,
+                new[] { EntityModel.Load(this._sourceFolder) });
+        }
+
+        public void LoadOutputBaseFolder(string folderPath)
+        {
+            this.Set(() => this.OutputBaseFolder, ref this._outputBaseFolder, folderPath);
         }
 
         private void ChangeOutputFolderNmae(string nameType)
@@ -210,12 +246,20 @@ namespace TorrentHardLinkHelper.ViewModels
                 this._locateResult = result;
                 this._unlocatedCount = result.UnlocatedCount;
 
-                EntityModel.Update(this._fileSystemEntityModel[0],
-                    result.TorrentFileLinks.Where(c => c.State == LinkState.Located).Select(c => c.LinkedFsFileInfo));
+                EntityModel.Update(this._fileSystemEntityModel[0], result.TorrentFileLinks);
                 this.RaisePropertyChanged(() => this.FileSystemEntityModel);
 
                 this.Set(() => this.TorrentEntityModel, ref this._torrentEntityModel,
                     new[] { EntityModel.Load(this._torrent.Name, result) });
+
+                // Notify commands to re-evaluate CanExecute (must be on UI thread)
+                Application.Current.Dispatcher.Invoke(new Action(() =>
+                {
+                    this._linkCommand.RaiseCanExecuteChanged();
+                    this._linkLinuxCommand.RaiseCanExecuteChanged();
+                    this._hardlinkLinuxCommand.RaiseCanExecuteChanged();
+                    this._moveLinuxCommand.RaiseCanExecuteChanged();
+                }));
             }
             catch (Exception ex)
             {
@@ -239,7 +283,7 @@ namespace TorrentHardLinkHelper.ViewModels
             if (Path.GetPathRoot(this._outputBaseFolder) != Path.GetPathRoot(this._sourceFolder))
             {
                 this.UpdateStatusFormat(
-                    "Link failed, the output basefolder and the source folder must be in the same driver!");
+                    "Link failed, the output basefolder and the source folder must be in the same drive!");
                 return;
             }
             if (this._unlocatedCount != 0) {
@@ -258,6 +302,60 @@ namespace TorrentHardLinkHelper.ViewModels
             helper.Copy(_torrentFile, targetTorrentFile);
             this.UpdateStatusFormat("Done.");
             Process.Start("explorer.exe", Path.Combine(this._outputBaseFolder, this._outputName));
+        }
+
+        private void LinkLinux()
+        {
+            if (this._unlocatedCount != 0)
+            {
+                MessageBoxResult result = MessageBox.Show(this._unlocatedCount + " files unlocated, generate script anyway?", "Confirm", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                if (result != MessageBoxResult.OK)
+                {
+                    return;
+                }
+            }
+
+            this.UpdateStatusFormat("Generating Linux symlink script...");
+            var helper = new HardLinkHelper();
+            helper.GenerateLinuxSymlinkScript(this._locateResult.TorrentFileLinks, this._outputName,
+                this._outputBaseFolder, this._sourceFolder);
+            this.UpdateStatusFormat("Done. Script saved as " + this._outputName + "_symlink.sh");
+        }
+
+        private void HardlinkLinux()
+        {
+            if (this._unlocatedCount != 0)
+            {
+                MessageBoxResult result = MessageBox.Show(this._unlocatedCount + " files unlocated, generate script anyway?", "Confirm", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                if (result != MessageBoxResult.OK)
+                {
+                    return;
+                }
+            }
+
+            this.UpdateStatusFormat("Generating Linux hard link script...");
+            var helper = new HardLinkHelper();
+            helper.GenerateLinuxHardlinkScript(this._locateResult.TorrentFileLinks, this._outputName,
+                this._outputBaseFolder, this._sourceFolder);
+            this.UpdateStatusFormat("Done. Script saved as " + this._outputName + "_hardlink.sh");
+        }
+
+        private void MoveLinux()
+        {
+            if (this._unlocatedCount != 0)
+            {
+                MessageBoxResult result = MessageBox.Show(this._unlocatedCount + " files unlocated, generate script anyway?", "Confirm", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                if (result != MessageBoxResult.OK)
+                {
+                    return;
+                }
+            }
+
+            this.UpdateStatusFormat("Generating Linux move script...");
+            var helper = new HardLinkHelper();
+            helper.GenerateLinuxMoveScript(this._locateResult.TorrentFileLinks, this._outputName,
+                this._outputBaseFolder, this._sourceFolder);
+            this.UpdateStatusFormat("Done. Script saved as " + this._outputName + "_move.sh");
         }
 
         #region Properties
@@ -360,6 +458,21 @@ namespace TorrentHardLinkHelper.ViewModels
         public RelayCommand LinkCommand
         {
             get { return this._linkCommand; }
+        }
+
+        public RelayCommand LinkLinuxCommand
+        {
+            get { return this._linkLinuxCommand; }
+        }
+
+        public RelayCommand HardlinkLinuxCommand
+        {
+            get { return this._hardlinkLinuxCommand; }
+        }
+
+        public RelayCommand MoveLinuxCommand
+        {
+            get { return this._moveLinuxCommand; }
         }
 
         public RelayCommand<SelectionChangedEventArgs> OutputNameTypeChangedCommand

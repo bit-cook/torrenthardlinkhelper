@@ -28,9 +28,12 @@
             <Label Grid.Row="0" Grid.Column="0" Content="Torrent File:" HorizontalContentAlignment="Right" VerticalAlignment="Center"></Label>
             <Label Grid.Row="1" Grid.Column="0" Content="Source Folder:" HorizontalContentAlignment="Right" VerticalAlignment="Center"></Label>
             <Label Grid.Row="2" Grid.Column="0" Content="Output BaseFolder:" HorizontalContentAlignment="Right" VerticalAlignment="Center"></Label>
-            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" Text="{Binding TorrentFile}"></TextBox>
-            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" Text="{Binding SourceFolder}"></TextBox>
-            <TextBox Grid.Row="2" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" Text="{Binding OutputBaseFolder}"></TextBox>
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" Text="{Binding TorrentFile}" 
+                     AllowDrop="True" PreviewDragOver="TextBox_PreviewDragOver" Drop="TorrentFile_Drop"></TextBox>
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" Text="{Binding SourceFolder}"
+                     AllowDrop="True" PreviewDragOver="TextBox_PreviewDragOver" Drop="SourceFolder_Drop"></TextBox>
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="5" VerticalContentAlignment="Center" Text="{Binding OutputBaseFolder}"
+                     AllowDrop="True" PreviewDragOver="TextBox_PreviewDragOver" Drop="OutputBaseFolder_Drop"></TextBox>
             <Button Grid.Row="0" Grid.Column="2" Content="Select" Margin="5" Padding="10,5" Command="{Binding SelectTorrentFileCommand}"></Button>
             <Button Grid.Row="1" Grid.Column="2" Content="Select" Margin="5" Padding="10,5" Command="{Binding SelectSourceFolder}"></Button>
             <Button Grid.Row="2" Grid.Column="2" Content="Select" Margin="5" Padding="10,5" Command="{Binding SelectOutputBaseFolder}"></Button>
@@ -101,6 +104,9 @@
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Analyse" Padding="10,5" Margin="5" Command="{Binding AnalyseCommand}"></Button>
             <Button Content="Hard-Link" Padding="10,5" Margin="5" Command="{Binding LinkCommand}"></Button>
+            <Button Content="Soft-Link Linux" Padding="10,5" Margin="5" Command="{Binding LinkLinuxCommand}"></Button>
+            <Button Content="Hard-Link Linux" Padding="10,5" Margin="5" Command="{Binding HardlinkLinuxCommand}"></Button>
+            <Button Content="Move Linux" Padding="10,5" Margin="5" Command="{Binding MoveLinuxCommand}"></Button>
         </StackPanel>
         <StatusBar Grid.Row="4" Margin="0,10,0,0">
             <StatusBarItem>
